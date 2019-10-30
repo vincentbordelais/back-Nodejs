@@ -30,9 +30,13 @@ const connection = mysql.createConnection({
 });
 // Contrôle de la connexion :
 connection.connect((err) => {
-    if (err) throw err;
-    console.log("La base de données est connectée.");
-})
+        if (err) {
+                console.log("Erreur de connexion à la base de données.");
+                console.log(err);
+        } else {
+                console.log("La base de données est connectée.");
+        }
+    })
 /*
 // Requête à la bdd :
 connection.query("SELECT * FROM user", (err, result) => {
