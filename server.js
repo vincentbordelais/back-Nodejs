@@ -14,9 +14,9 @@ const router = express.Router();
 app.use(cors())
 app.use(bodyParser.json());
 
-router.use(bodyParser.urlencoded({ extended:  false }));
+router.use(bodyParser.urlencoded({ extended: false }));
 router.use(bodyParser.json());
-
+/*
 // Fonctions :
 const findUserByEmail = (email, cb) => {
     return connection.query(`SELECT * FROM user WHERE email = ?`,[email], (err, row) => {
@@ -24,25 +24,24 @@ const findUserByEmail = (email, cb) => {
             console.log(row[0]); // Users renvoyés par la bdd, [] si pas trouvé.
     });
 }
- 
+ */
 // Routes :
-router.post('/login', (req, res) => {
-    // Récupération du formulaire :
-    const email = req.body[0];
-    console.log("Réception par le server :"+ email);
-   
-    // Réponse envoyée à l'appli :
-    findUserByEmail(email, (err, user) => {
-        //console.log(user);
-        if (err) return res.status(500).send('Erreur du Serveur!');
-        if (user == []) return res.status(404).send('User not found'); // cette condition ne marche jamais
-        // res.json(user);
-        const expiresIn = 24 * 60 * 60;
-        const accessToken = jwt.sign({ id: user.id }, SECRET_KEY, {
-            expiresIn: expiresIn
-        });
-        res.status(200).send({ "user venant du serveur : ": user, "access_token": accessToken, "expires_in": expiresIn});
-    }); 
+router.post('/login', (req, res) => {
+    // console.log(req.body[0]);
+    const email = req.body[0];
+    
+    connection.query("SELECT * FROM user WHERE email='" + email + "'", (err, rows) => {
+        // console.log(rows);
+        if (err) {
+            res.status(500).send("Server error!");
+            console.log(1);
+        } else if (rows.length <1) {
+            res.status(404).send("User n\'existe pas!");
+            // res.json("User n\'existe pas!");
+        } else {
+            res.status(200).send(rows[0]);
+        }
+    })       
 });
 
 router.get('/', (req, res) => {
