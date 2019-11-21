@@ -4,10 +4,9 @@ const app = express()
 var cors = require('cors') // gère les problèmes liés au CORS (Cross Origin Resource Sharing)
 var bodyParser = require('body-parser')  // aide à récupérer les informations des demandes POST, le body
 const mysql = require('mysql')
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const SECRET_KEY = "secretkey23456";
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = "secretkey23456";
 
 
 // Middlewares :
@@ -30,16 +29,20 @@ router.post('/login', (req, res) => {
     // console.log(req.body[0]);
     const email = req.body[0];
     
-    connection.query("SELECT * FROM user WHERE email='" + email + "'", (err, rows) => {
-        // console.log(rows);
+    connection.query("SELECT * FROM user WHERE email='" + email + "'", (err, userServer) => {
         if (err) {
             res.status(500).send("Server error!");
             console.log(1);
-        } else if (rows.length <1) {
+        } else if (userServer.length <1) {
             res.status(404).send("User n\'existe pas!");
-            // res.json("User n\'existe pas!");
         } else {
-            res.status(200).send(rows[0]);
+            const expiresIn = 24 * 60 * 60;
+            const accessToken = jwt.sign({ id: userServer.id }, SECRET_KEY, {
+                expiresIn: expiresIn
+            });
+            res.status(200).send({"userServer": userServer[0], "access_token": accessToken, "expires_in": expiresIn
+            });
+            console.log(userServer[0]);
         }
     })       
 });
